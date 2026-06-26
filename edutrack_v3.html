@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrack</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Light palette — warm white with indigo/violet accents */
+  --bg:         #f5f4f7;
+  --bg2:        #eeedf2;
+  --surface:    #ffffff;
+  --surface2:   #f9f8fc;
+  --border:     #e8e6ef;
+  --border2:    #d5d2e4;
+  --text:       #1a1830;
+  --text2:      #4b4869;
+  --muted:      #9691b0;
+  --muted2:     #c4c0d8;
+  /* Brand */
+  --accent:     #5b4af7;
+  --accent-lt:  #ede9ff;
+  --accent2:    #00b4c8;
+  --accent2-lt: #e0f7fa;
+  --green:      #05b67a;
+  --green-lt:   #dcf7ee;
+  --yellow:     #e8900c;
+  --yellow-lt:  #fff3dc;
+  --red:        #e83a3a;
+  --red-lt:     #ffeaea;
+  --orange:     #e86422;
+  --blue:       #2e78e8;
+  --purple:     #8b5cf6;
+  /* Mono */
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(60,50,100,0.07), 0 1px 2px rgba(60,50,100,0.04);
+  --shadow:     0 4px 12px rgba(60,50,100,0.09), 0 1px 4px rgba(60,50,100,0.05);
+  --shadow-lg:  0 16px 48px rgba(60,50,100,0.13), 0 4px 16px rgba(60,50,100,0.07);
+  --shadow-xl:  0 32px 80px rgba(60,50,100,0.18), 0 8px 24px rgba(60,50,100,0.1);
+}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+/* ── Layout ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  box-shadow:var(--shadow-sm);
+  z-index:50;
+}
+.content{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ── Sidebar ── */
+.sidebar-top{padding:20px 16px 12px}
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:20px;text-decoration:none}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#5b4af7 0%,#00b4c8 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#fff;font-weight:900;
+  box-shadow:0 4px 12px rgba(91,74,247,0.35);
+}
+.logo-name{font-size:16px;font-weight:800;letter-spacing:-.025em;color:var(--text)}
+
+/* Profile card in sidebar */
+.profile-card{
+  background:linear-gradient(135deg,var(--accent-lt) 0%,var(--accent2-lt) 100%);
+  border:1px solid rgba(91,74,247,.15);
+  border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;
+  transition:box-shadow .2s,transform .15s;
+}
+.profile-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.profile-avatar{
+  width:46px;height:46px;border-radius:12px;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:800;color:#fff;
+  border:2.5px solid rgba(255,255,255,.8);
+  box-shadow:0 4px 14px rgba(91,74,247,.3);
+  overflow:hidden;flex-shrink:0;
+}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
+.profile-detail{font-size:11px;color:var(--text2);margin-top:2px}
+.profile-gpa-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.profile-gpa-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.7);
+  border:1px solid rgba(91,74,247,.2);
+  border-radius:99px;padding:3px 9px;
+  font-size:11px;font-weight:700;color:var(--accent);
+  font-family:var(--mono);
+}
+
+/* Nav items */
+.nav-section-label{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;padding:16px 16px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 12px;margin:1px 8px;
+  border-radius:9px;cursor:pointer;
+  font-size:13px;font-weight:500;color:var(--text2);
+  transition:background .13s,color .13s;border:none;background:transparent;
+  width:calc(100% - 16px);text-align:left;font-family:var(--sans);
+}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--accent-lt);color:var(--accent);font-weight:600}
+.nav-item.active .nav-icon{opacity:1}
+.nav-icon{font-size:15px;opacity:.6;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:2px 6px;font-family:var(--mono)}
+
+/* Sidebar stats at bottom */
+.sidebar-stats{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.sidebar-stat-row{display:flex;justify-content:space-between;align-items:center;padding:4px 4px}
+.sidebar-stat-label{font-size:11px;color:var(--muted)}
+.sidebar-stat-value{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text2)}
+
+/* ── Topbar ── */
+.topbar{
+  background:rgba(245,244,247,.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;position:sticky;top:0;z-index:40;
+  height:56px;display:flex;align-items:center;justify-content:space-between;
+}
+.topbar-title{font-size:15px;font-weight:700;letter-spacing:-.015em;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+
+/* ── Main ── */
+.main{flex:1;padding:28px 32px 80px;max-width:960px;width:100%}
+
+/* ── Cards ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+  transition:box-shadow .2s,border-color .2s;
+}
+.card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
+.card-pad{padding:20px 24px}
+.card-header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;transition:background .13s;
+}
+.card-header:hover{background:var(--surface2)}
+
+/* ── Metric cards ── */
+.metric-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:18px 20px;
+  box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+  transition:box-shadow .2s,transform .15s;
+}
+.metric-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.metric-card-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:99px 99px 0 0}
+.metric-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.metric-value{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* ── GPA Ring ── */
+.ring-wrap{position:relative;flex-shrink:0}
+
+/* ── Badges ── */
+.grade-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;padding:2px 7px;border-radius:6px;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  border:1.5px solid;white-space:nowrap;cursor:pointer;
+  transition:filter .12s,transform .1s,box-shadow .12s;
+}
+.grade-chip:hover{filter:brightness(.96);transform:scale(1.06);box-shadow:var(--shadow-sm)}
+
+.rank-pill{
+  display:inline-flex;align-items:center;padding:4px 14px;border-radius:99px;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+}
+
+/* ── Progress ── */
+.prog-track{height:7px;background:var(--bg2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
+
+/* ── Semester badge ── */
+.sem-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:6px;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+}
+
+/* ── Course row ── */
+.course-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 10px;border-radius:9px;
+  border:1px solid transparent;margin-bottom:3px;
+  transition:background .1s,border-color .1s;
+}
+.course-row:hover{background:var(--surface2);border-color:var(--border)}
+.credit-pill{
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+}
+
+/* ── Grade select ── */
+.grade-sel{
+  background:var(--surface2);border:1.5px solid var(--border2);
+  color:var(--text);border-radius:7px;font-size:11px;padding:3px 7px;
+  font-family:var(--mono);cursor:pointer;outline:none;
+  transition:border-color .15s;
+}
+.grade-sel:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,74,247,.12)}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
+  border-radius:9px;border:none;font-size:13px;font-family:var(--sans);
+  font-weight:600;cursor:pointer;transition:all .15s;line-height:1;
+}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(91,74,247,.3)}
+.btn-primary:hover{background:#4e3fe8;box-shadow:0 4px 16px rgba(91,74,247,.4)}
+.btn-secondary{background:var(--surface);color:var(--text2);border:1.5px solid var(--border2)}
+.btn-secondary:hover{background:var(--bg);border-color:var(--border2);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--muted);padding:6px 10px}
+.btn-ghost:hover{background:var(--bg);color:var(--text2)}
+.btn-danger{background:var(--red-lt);color:var(--red);border:1px solid rgba(232,58,58,.2)}
+.btn-danger:hover{background:#ffd6d6}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:7px}
+.btn-icon{width:30px;height:30px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+
+/* ── Modal ── */
+.overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(26,24,48,.45);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .18s ease;
+}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:20px;padding:28px 30px;width:100%;max-width:460px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-xl);
+  animation:slideUp .22s cubic-bezier(.4,0,.2,1);
+}
+.modal-xl{max-width:560px}
+.modal-title{font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:9px}
+.field{margin-bottom:16px}
+.field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.field-input{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border2);
+  border-radius:9px;padding:9px 13px;color:var(--text);font-size:14px;
+  font-family:var(--sans);outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,74,247,.12)}
+.field-select{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border2);
+  border-radius:9px;padding:9px 13px;color:var(--text);font-size:14px;
+  font-family:var(--sans);outline:none;cursor:pointer;
+  transition:border-color .15s;appearance:auto;
+}
+.field-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,74,247,.12)}
+
+/* ── Drag ── */
+.drag-handle{color:var(--muted2);font-size:14px;cursor:grab;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+.chip-dragging{opacity:.3}
+.drop-active{background:rgba(91,74,247,.04)!important;border:1.5px dashed rgba(91,74,247,.4)!important}
+
+/* ── Planner chip ── */
+.plan-chip{
+  display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:9px;
+  background:var(--surface2);border:1.5px solid var(--border);margin-bottom:4px;
+  transition:all .12s;user-select:none;
+}
+.plan-chip:hover{background:var(--accent-lt);border-color:rgba(91,74,247,.3)}
+
+/* ── GPA bars ── */
+.bars-wrap{display:flex;align-items:flex-end;gap:8px}
+.bar-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-val{font-family:var(--mono);font-size:9px;font-weight:600;line-height:1}
+.bar-bg{width:100%;display:flex;align-items:flex-end}
+.bar-fill{width:100%;border-radius:5px 5px 0 0;transition:height 1.5s cubic-bezier(.4,0,.2,1)}
+.bar-label{font-size:8px;color:var(--muted2);text-align:center;line-height:1.3}
+
+/* ── Timeline ── */
+.timeline{display:flex;overflow-x:auto;padding-bottom:4px}
+.tl-cell{min-width:86px;padding:0 14px;border-left:1px solid var(--border);flex-shrink:0}
+.tl-cell:first-child{border-left:none;padding-left:0}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;
+  background:var(--text);color:#fff;border-radius:10px;
+  padding:10px 18px;font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-lg);white-space:nowrap;
+  animation:slideUp .2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Search ── */
+.search-wrap{position:relative}
+.search-input{
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:9px;padding:7px 12px 7px 34px;color:var(--text);
+  font-size:13px;font-family:var(--sans);outline:none;
+  transition:border-color .15s,width .2s;width:200px;
+}
+.search-input:focus{border-color:var(--accent);width:260px;box-shadow:0 0 0 3px rgba(91,74,247,.1)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:slideUp .32s cubic-bezier(.4,0,.2,1) both}
+
+/* ── Avatar upload zone ── */
+.avatar-zone{
+  width:80px;height:80px;border-radius:18px;
+  background:linear-gradient(135deg,var(--accent-lt),var(--accent2-lt));
+  border:2px dashed var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;overflow:hidden;position:relative;
+  transition:border-color .15s,box-shadow .15s;
+}
+.avatar-zone:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,74,247,.12)}
+.avatar-zone img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.avatar-zone-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center;line-height:1.4;z-index:1}
+
+/* ── Section label ── */
+.section-label{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+
+/* ── Divider ── */
+.div{height:1px;background:var(--border);margin:4px 0}
+
+/* ── Sem grid ── */
+.sem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:24px 0;font-size:13px;color:var(--muted2);border:1.5px dashed var(--border);border-radius:9px}
+
+/* ── Info chip (profile page) ── */
+.info-chip{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:11px;
+  transition:border-color .15s;
+}
+.info-chip:hover{border-color:var(--border2)}
+.info-chip-icon{font-size:18px;flex-shrink:0}
+.info-chip-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.info-chip-value{font-size:13px;font-weight:600;color:var(--text);margin-top:1px}
+</style>
+</head>
+<body>
+<div id="root" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:14px;color:#9691b0;font-family:system-ui">
+  <div style="width:28px;height:28px;border:2.5px solid #e8e6ef;border-top-color:#5b4af7;border-radius:50%;animation:sp .7s linear infinite"></div>
+  <style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+  Đang tải EduTrack…
+</div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+/* ══════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════ */
+const GP = {'A+':4,'A':4,'B+':3.5,'B':3,'C+':2.5,'C':2,'D+':1.5,'D':1,'F':0};
+const GRADE_OPTS = ['A+','A','B+','B','C+','C','D+','D','F'];
+
+const gradeColor = g => {
+  if (!g || g==='-' || GP[g]===undefined)
+    return {c:'#9691b0',bg:'#f3f2f8',bd:'#d5d2e4'};
+  const p = GP[g];
+  if(p>=4)   return {c:'#05a36d',bg:'#dcf7ee',bd:'#b3edd9'};
+  if(p>=3.5) return {c:'#2e78e8',bg:'#e8f1ff',bd:'#b8d0f7'};
+  if(p>=3)   return {c:'#7c3aed',bg:'#ede9ff',bd:'#c9b8f7'};
+  if(p>=2.5) return {c:'#c87c00',bg:'#fff3dc',bd:'#f7d898'};
+  if(p>=2)   return {c:'#e86422',bg:'#fff0e8',bd:'#f7c9aa'};
+  if(p>=1)   return {c:'#e83a3a',bg:'#ffeaea',bd:'#f7b8b8'};
+  return             {c:'#c00',  bg:'#fff0f0',bd:'#f7b8b8'};
+};
+const gpaCol = g => {
+  if(g==null) return '#9691b0';
+  if(g>=3.6)  return '#05b67a';
+  if(g>=3.2)  return '#2e78e8';
+  if(g>=2.5)  return '#e8900c';
+  return '#e83a3a';
+};
+const rankLabel = cpa => {
+  if(cpa==null) return '—';
+  if(cpa>=3.6)  return 'Xuất sắc';
+  if(cpa>=3.2)  return 'Giỏi';
+  if(cpa>=2.5)  return 'Khá';
+  if(cpa>=2.0)  return 'Trung bình khá';
+  return 'Trung bình';
+};
+const rankColors = cpa => {
+  if(cpa==null) return {c:'#9691b0',bg:'#f3f2f8',bd:'#d5d2e4'};
+  if(cpa>=3.6)  return {c:'#05a36d',bg:'#dcf7ee',bd:'#b3edd9'};
+  if(cpa>=3.2)  return {c:'#2e78e8',bg:'#e8f1ff',bd:'#b8d0f7'};
+  if(cpa>=2.5)  return {c:'#c87c00',bg:'#fff3dc',bd:'#f7d898'};
+  return              {c:'#e83a3a',bg:'#ffeaea',bd:'#f7b8b8'};
+};
+
+let _uid=1; const uid=()=>'c_'+(_uid++);
+
+/* ══════════════════════════════════════════════
+   INITIAL DATA
+══════════════════════════════════════════════ */
+const INIT_PROFILE = {
+  name: 'Nguyễn Văn A',
+  studentId: 'XXXXXXXX',
+  school: 'Đại học Bách khoa Hà Nội',
+  faculty: 'Kỹ thuật Cơ khí',
+  major: 'Kỹ thuật Cơ điện tử',
+  year: 'K68 (2023 – 2028)',
+  email: 'example@student.hust.edu.vn',
+  phone: '',
+  avatar: null,
+  totalCreditsRequired: 145,
+};
+
+const INIT_SEMS = [
+  { id:'2024.1', status:'completed', courses:[
+    {id:uid(),code:'MI1112',name:'Giải tích 1',credits:3,grade:'A'},
+    {id:uid(),code:'MI1142',name:'Đại số tuyến tính',credits:3,grade:'C+'},
+    {id:uid(),code:'MS1400',name:'GDTC 1',credits:3,grade:'A'},
+    {id:uid(),code:'MS1401',name:'Giáo dục QP-AN',credits:2,grade:'A'},
+    {id:uid(),code:'PE1014',name:'Thể dục 1',credits:0,grade:'-'},
+  ]},
+  { id:'2024.2', status:'completed', courses:[
+    {id:uid(),code:'CH1017',name:'Hóa học đại cương',credits:3,grade:'A'},
+    {id:uid(),code:'EM1170',name:'Kinh tế học',credits:2,grade:'B+'},
+    {id:uid(),code:'MI1122',name:'Giải tích 2',credits:3,grade:'A'},
+    {id:uid(),code:'MI1132',name:'Xác suất thống kê',credits:3,grade:'B+'},
+    {id:uid(),code:'MIL1210',name:'GDQP-AN 2',credits:0,grade:'-'},
+    {id:uid(),code:'MS1402',name:'GDTC 2',credits:3,grade:'A+'},
+    {id:uid(),code:'PH1110',name:'Vật lý 1',credits:3,grade:'C+'},
+  ]},
+  { id:'2024.3', status:'completed', courses:[
+    {id:uid(),code:'SSH1111',name:'Triết học Mác-Lênin',credits:3,grade:'A'},
+  ]},
+  { id:'2025.1', status:'completed', courses:[
+    {id:uid(),code:'CH3008',name:'Hóa vô cơ',credits:2,grade:'A'},
+    {id:uid(),code:'IT1140',name:'Lập trình máy tính',credits:4,grade:'A'},
+    {id:uid(),code:'ME3123',name:'Cơ học kỹ thuật',credits:2,grade:'A'},
+    {id:uid(),code:'MS2401',name:'Toán kỹ thuật 1',credits:1,grade:'B'},
+    {id:uid(),code:'MS2406',name:'Toán kỹ thuật 2',credits:1,grade:'A'},
+    {id:uid(),code:'MS2407',name:'GDTC 3',credits:2,grade:'A'},
+    {id:uid(),code:'MS3401',name:'Vật liệu học',credits:2,grade:'A'},
+    {id:uid(),code:'PE2401',name:'Thể dục 4',credits:0,grade:'-'},
+    {id:uid(),code:'PH1120',name:'Vật lý 2',credits:3,grade:'B+'},
+    {id:uid(),code:'SSH1121',name:'Kinh tế chính trị',credits:2,grade:'A'},
+  ]},
+  { id:'2025.2', status:'completed', courses:[
+    {id:uid(),code:'CH3007',name:'Hóa hữu cơ',credits:1,grade:'A'},
+    {id:uid(),code:'EE2016',name:'Kỹ thuật điện',credits:3,grade:'A'},
+    {id:uid(),code:'EM1010',name:'Quản trị học',credits:2,grade:'A'},
+    {id:uid(),code:'MI2021',name:'Phương trình vi phân',credits:2,grade:'A'},
+    {id:uid(),code:'MS2402',name:'Cơ học lưu chất',credits:3,grade:'A'},
+    {id:uid(),code:'MS2403',name:'Nhiệt động lực học',credits:1,grade:'A'},
+    {id:uid(),code:'MS2404',name:'Truyền nhiệt',credits:2,grade:'A'},
+    {id:uid(),code:'MS2405',name:'Sức bền vật liệu',credits:2,grade:'A'},
+    {id:uid(),code:'PE2101',name:'Bơi lội',credits:0,grade:'-'},
+    {id:uid(),code:'SSH1151',name:'Xã hội học',credits:2,grade:'A'},
+  ]},
+  { id:'2025.3', status:'planned', courses:[
+    {id:uid(),code:'SSH1131',name:'Chủ nghĩa XHKH',credits:2,grade:null},
+  ]},
+  { id:'2026.1', status:'planned', courses:[
+    {id:uid(),code:'SSH1141',name:'Lịch sử ĐCS VN',credits:2,grade:null},
+    {id:uid(),code:'PH1131',name:'Vật lý 3',credits:2,grade:null},
+    {id:uid(),code:'IT3087',name:'Trí tuệ nhân tạo',credits:3,grade:null},
+    {id:uid(),code:'MS3402',name:'Nguyên lý máy',credits:2,grade:null},
+    {id:uid(),code:'MS3403',name:'Chi tiết máy 1',credits:1,grade:null},
+    {id:uid(),code:'ED3220',name:'Kỹ thuật số',credits:2,grade:null},
+    {id:uid(),code:'MS3404',name:'Chi tiết máy 2',credits:2,grade:null},
+    {id:uid(),code:'MS3405',name:'Kỹ thuật đo',credits:1,grade:null},
+    {id:uid(),code:'MS3406',name:'Gia công cắt gọt',credits:3,grade:null},
+  ]},
+  { id:'2026.2', status:'planned', courses:[
+    {id:uid(),code:'ME2040',name:'Cơ điện tử',credits:3,grade:null},
+    {id:uid(),code:'MS3407',name:'Thiết kế máy 1',credits:1,grade:null},
+    {id:uid(),code:'MS3408',name:'Thiết kế máy 2',credits:2,grade:null},
+    {id:uid(),code:'MS3409',name:'Điều khiển học',credits:2,grade:null},
+    {id:uid(),code:'MS3410',name:'Robot công nghiệp',credits:2,grade:null},
+    {id:uid(),code:'MS3411',name:'Tự động hóa',credits:3,grade:null},
+    {id:uid(),code:'MS4401',name:'Đồ án TK 1',credits:2,grade:null},
+    {id:uid(),code:'MS4402',name:'Đồ án TK 2',credits:2,grade:null},
+    {id:uid(),code:'MS4403',name:'XSTK kỹ thuật',credits:1,grade:null},
+  ]},
+  { id:'2027.1', status:'planned', courses:[
+    {id:uid(),code:'MS4404',name:'Nguyên lý máy NC',credits:2,grade:null},
+    {id:uid(),code:'MS4405',name:'Hệ thống SX linh hoạt',credits:1,grade:null},
+    {id:uid(),code:'MS4406',name:'CAD/CAM',credits:3,grade:null},
+    {id:uid(),code:'MS4407',name:'Quản lý sản xuất',credits:2,grade:null},
+    {id:uid(),code:'MSE2024',name:'Kỹ thuật hàn',credits:3,grade:null},
+  ]},
+  { id:'2027.2', status:'planned', courses:[
+    {id:uid(),code:'MS4493',name:'Đồ án tốt nghiệp',credits:8,grade:null},
+  ]},
+];
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+const calcGPA   = cs => { const v=cs.filter(c=>c.credits>0&&c.grade&&c.grade!=='-'&&GP[c.grade]!=null); if(!v.length) return null; const pts=v.reduce((s,c)=>s+GP[c.grade]*c.credits,0), tc=v.reduce((s,c)=>s+c.credits,0); return tc?pts/tc:null; };
+const earnedCr  = cs => cs.filter(c=>c.credits>0&&c.grade&&c.grade!=='-').reduce((s,c)=>s+c.credits,0);
+const plannedCr = cs => cs.filter(c=>c.credits>0).reduce((s,c)=>s+c.credits,0);
+const buildTimeline = sems => { let pts=0,cr=0; return sems.filter(s=>s.status==='completed').map(s=>{ const v=s.courses.filter(c=>c.credits>0&&c.grade&&c.grade!=='-'&&GP[c.grade]!=null); pts+=v.reduce((a,c)=>a+GP[c.grade]*c.credits,0); cr+=v.reduce((a,c)=>a+c.credits,0); return {id:s.id,semGPA:calcGPA(s.courses),cumCPA:cr?pts/cr:null,cumCr:cr}; }); };
+const getInitials = name => name.split(' ').filter(Boolean).slice(-2).map(w=>w[0]).join('').toUpperCase();
+
+/* ══════════════════════════════════════════════
+   SMALL COMPONENTS
+══════════════════════════════════════════════ */
+const Toast = ({msg,onDone}) => { useEffect(()=>{const t=setTimeout(onDone,2400);return()=>clearTimeout(t);},[]);return <div className="toast">{msg}</div>; };
+
+const GBadge = ({grade,onClick,small=false}) => {
+  const {c,bg,bd} = gradeColor(grade);
+  return <span className="grade-chip" onClick={onClick} style={{color:c,background:bg,borderColor:bd,fontSize:small?10:11,padding:small?'1px 5px':'2px 7px',minWidth:small?28:34}}>{grade||'—'}</span>;
+};
+
+const CPARing = ({cpa,size=128}) => {
+  const [anim,setAnim]=useState(null);
+  useEffect(()=>{const t=setTimeout(()=>setAnim(cpa),320);return()=>clearTimeout(t);},[cpa]);
+  const R=size*.36,C=2*Math.PI*R,pct=anim!=null?Math.min(anim/4,1):0,off=C*(1-pct),col=gpaCol(cpa);
+  return (
+    <div style={{position:'relative',width:size,height:size,flexShrink:0}}>
+      <svg width={size} height={size} style={{transform:'rotate(-90deg)',display:'block'}}>
+        <circle cx={size/2} cy={size/2} r={R} fill="none" stroke="var(--bg2)" strokeWidth={size*.065}/>
+        <circle cx={size/2} cy={size/2} r={R} fill="none" stroke={col} strokeWidth={size*.065} strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={off}
+          style={{transition:'stroke-dashoffset 1.9s cubic-bezier(.4,0,.2,1),stroke .5s'}}/>
+      </svg>
+      <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+        <span style={{fontFamily:'var(--mono)',fontSize:size*.185,fontWeight:700,color:col,lineHeight:1}}>{cpa!=null?cpa.toFixed(2):'—'}</span>
+        <span style={{fontSize:size*.074,color:'var(--muted)',marginTop:3,letterSpacing:'.1em',fontWeight:600}}>CPA</span>
+      </div>
+    </div>
+  );
+};
+
+const GPABars = ({sems}) => {
+  const H=72;
+  return (
+    <div className="bars-wrap" style={{height:H+34}}>
+      {sems.map(s=>{
+        const g=calcGPA(s.courses),h=g!=null?Math.max(4,Math.round((g/4)*H)):0,col=gpaCol(g);
+        return (
+          <div key={s.id} className="bar-col">
+            <span className="bar-val" style={{color:col}}>{g!=null?g.toFixed(2):'—'}</span>
+            <div className="bar-bg" style={{height:H}}>
+              <div className="bar-fill" style={{height:h,background:`linear-gradient(180deg,${col} 0%,${col}66 100%)`}}/>
+            </div>
+            <span className="bar-label">{s.id.replace('20','')}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════ */
+const EditCourseModal = ({course,semId,onSave,onDelete,onClose}) => {
+  const [code,setCode]=useState(course.code||'');
+  const [name,setName]=useState(course.name||'');
+  const [credits,setCredits]=useState(course.credits??3);
+  const [grade,setGrade]=useState(course.grade||'');
+  return (
+    <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+      <div className="modal">
+        <div className="modal-title">✏️ Chỉnh sửa môn học</div>
+        <div className="field"><div className="field-label">Mã môn học</div><input className="field-input" value={code} onChange={e=>setCode(e.target.value)} placeholder="VD: IT1140"/></div>
+        <div className="field"><div className="field-label">Tên môn học</div><input className="field-input" value={name} onChange={e=>setName(e.target.value)} placeholder="VD: Lập trình máy tính"/></div>
+        <div style={{display:'flex',gap:12}}>
+          <div className="field" style={{flex:1}}><div className="field-label">Số tín chỉ</div><input className="field-input" type="number" min={0} max={15} value={credits} onChange={e=>setCredits(parseInt(e.target.value)||0)}/></div>
+          <div className="field" style={{flex:1}}>
+            <div className="field-label">Điểm chữ</div>
+            <select className="field-select" value={grade} onChange={e=>setGrade(e.target.value)}>
+              <option value="">— Chưa có —</option>
+              <option value="-">- (Không tính GPA)</option>
+              {GRADE_OPTS.map(g=><option key={g} value={g}>{g} — {GP[g].toFixed(1)}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8}}>
+          <button className="btn btn-primary" onClick={()=>onSave({...course,code,name,credits,grade:grade||null})}>💾 Lưu thay đổi</button>
+          <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+          <div style={{flex:1}}/>
+          <button className="btn btn-danger btn-sm" onClick={()=>onDelete(course.id,semId)}>🗑️ Xóa môn</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AddCourseModal = ({semId,onSave,onClose}) => {
+  const [code,setCode]=useState('');
+  const [name,setName]=useState('');
+  const [credits,setCredits]=useState(3);
+  const [grade,setGrade]=useState('');
+  return (
+    <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+      <div className="modal">
+        <div className="modal-title">➕ Thêm môn học</div>
+        <div className="field"><div className="field-label">Mã môn học</div><input className="field-input" value={code} onChange={e=>setCode(e.target.value)} placeholder="VD: IT1140" autoFocus/></div>
+        <div className="field"><div className="field-label">Tên môn học</div><input className="field-input" value={name} onChange={e=>setName(e.target.value)} placeholder="VD: Lập trình máy tính"/></div>
+        <div style={{display:'flex',gap:12}}>
+          <div className="field" style={{flex:1}}><div className="field-label">Số tín chỉ</div><input className="field-input" type="number" min={0} max={15} value={credits} onChange={e=>setCredits(parseInt(e.target.value)||0)}/></div>
+          <div className="field" style={{flex:1}}>
+            <div className="field-label">Điểm <span style={{color:'var(--muted)',fontWeight:400,textTransform:'none',letterSpacing:0}}>(tùy chọn)</span></div>
+            <select className="field-select" value={grade} onChange={e=>setGrade(e.target.value)}>
+              <option value="">— Chưa có —</option>
+              <option value="-">- (Không tính GPA)</option>
+              {GRADE_OPTS.map(g=><option key={g} value={g}>{g} — {GP[g].toFixed(1)}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8}}>
+          <button className="btn btn-primary" disabled={!code.trim()} onClick={()=>{if(!code.trim())return;onSave({id:uid(),code:code.trim(),name:name.trim()||code.trim(),credits,grade:grade||null});onClose();}}>➕ Thêm môn</button>
+          <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AddSemModal = ({onSave,onClose,existingIds}) => {
+  const [semId,setSemId]=useState('');
+  const [status,setStatus]=useState('planned');
+  const bad=semId&&existingIds.includes(semId);
+  return (
+    <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+      <div className="modal">
+        <div className="modal-title">🗓️ Thêm học kỳ mới</div>
+        <div className="field">
+          <div className="field-label">ID học kỳ <span style={{color:'var(--muted)',fontWeight:400,textTransform:'none',letterSpacing:0,fontSize:11}}>(VD: 2026.3)</span></div>
+          <input className="field-input" value={semId} onChange={e=>setSemId(e.target.value)} placeholder="YYYY.N" autoFocus style={{borderColor:bad?'var(--red)':''}}/>
+          {bad&&<div style={{fontSize:11,color:'var(--red)',marginTop:4}}>ID này đã tồn tại</div>}
+        </div>
+        <div className="field">
+          <div className="field-label">Trạng thái</div>
+          <div style={{display:'flex',gap:8}}>
+            {[['completed','✅ Đã hoàn thành'],['planned','📋 Kế hoạch']].map(([s,l])=>(
+              <button key={s} className={`btn ${status===s?'btn-primary':'btn-secondary'}`} style={{fontSize:12}} onClick={()=>setStatus(s)}>{l}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8}}>
+          <button className="btn btn-primary" disabled={!semId.trim()||bad} onClick={()=>{onSave({id:semId.trim(),status,courses:[]});onClose();}}>✅ Tạo học kỳ</button>
+          <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* Profile Edit Modal */
+const ProfileModal = ({profile,onSave,onClose}) => {
+  const [p,setP]=useState({...profile});
+  const fileRef=useRef();
+  const set=(k,v)=>setP(prev=>({...prev,[k]:v}));
+  const handleFile=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=ev=>set('avatar',ev.target.result); r.readAsDataURL(f);
+  };
+  return (
+    <div className="overlay" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
+      <div className="modal modal-xl" style={{maxWidth:540}}>
+        <div className="modal-title">👤 Chỉnh sửa hồ sơ</div>
+        {/* Avatar */}
+        <div style={{display:'flex',gap:16,alignItems:'flex-start',marginBottom:20}}>
+          <div>
+            <div className="avatar-zone" style={{width:80,height:80}} onClick={()=>fileRef.current.click()}>
+              {p.avatar
+                ? <img src={p.avatar} alt="avatar"/>
+                : <div className="avatar-zone-label">{p.name?getInitials(p.name):'?'}<br/>📷<br/>Upload</div>}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
+            {p.avatar&&<button className="btn btn-ghost btn-sm" style={{marginTop:4,color:'var(--red)',fontSize:10}} onClick={()=>set('avatar',null)}>Xóa ảnh</button>}
+          </div>
+          <div style={{flex:1}}>
+            <div className="field" style={{marginBottom:12}}><div className="field-label">Họ và tên</div><input className="field-input" value={p.name} onChange={e=>set('name',e.target.value)} placeholder="Họ và tên đầy đủ"/></div>
+            <div className="field" style={{marginBottom:0}}><div className="field-label">Mã số sinh viên</div><input className="field-input" value={p.studentId} onChange={e=>set('studentId',e.target.value)} placeholder="VD: 20230001"/></div>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div className="field"><div className="field-label">Trường / Đại học</div><input className="field-input" value={p.school} onChange={e=>set('school',e.target.value)}/></div>
+          <div className="field"><div className="field-label">Khoa / Viện</div><input className="field-input" value={p.faculty} onChange={e=>set('faculty',e.target.value)}/></div>
+          <div className="field"><div className="field-label">Ngành học</div><input className="field-input" value={p.major} onChange={e=>set('major',e.target.value)}/></div>
+          <div className="field"><div className="field-label">Khóa / Năm học</div><input className="field-input" value={p.year} onChange={e=>set('year',e.target.value)} placeholder="VD: K68 (2023–2028)"/></div>
+          <div className="field"><div className="field-label">Email</div><input className="field-input" type="email" value={p.email} onChange={e=>set('email',e.target.value)}/></div>
+          <div className="field"><div className="field-label">Số điện thoại</div><input className="field-input" value={p.phone} onChange={e=>set('phone',e.target.value)} placeholder="VD: 0912 345 678"/></div>
+          <div className="field" style={{gridColumn:'1/-1'}}><div className="field-label">Tổng tín chỉ yêu cầu toàn khóa</div><input className="field-input" type="number" value={p.totalCreditsRequired} onChange={e=>set('totalCreditsRequired',parseInt(e.target.value)||145)} style={{width:120}}/></div>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8}}>
+          <button className="btn btn-primary" onClick={()=>{onSave(p);onClose();}}>💾 Lưu hồ sơ</button>
+          <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   COMPLETED CARD
+══════════════════════════════════════════════ */
+const CompletedCard = ({sem,delay=0,onUpdateCourse,onDeleteCourse,onAddCourse}) => {
+  const [open,setOpen]=useState(true);
+  const [editC,setEditC]=useState(null);
+  const [addC,setAddC]=useState(false);
+  const [editGid,setEditGid]=useState(null);
+  const gpa=calcGPA(sem.courses),cr=earnedCr(sem.courses),col=gpaCol(gpa);
+  return (
+    <div className="card anim" style={{animationDelay:`${delay}s`}}>
+      <div className="card-header" onClick={()=>setOpen(v=>!v)}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:38,height:38,borderRadius:10,flexShrink:0,background:'var(--accent-lt)',border:'1.5px solid rgba(91,74,247,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--mono)',fontSize:13,fontWeight:700,color:'var(--accent)'}}>{sem.id.split('.')[1]}</div>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontWeight:700,fontSize:14,color:'var(--text)'}}>Học kỳ {sem.id}</span>
+              <span style={{display:'inline-flex',alignItems:'center',gap:4,padding:'2px 8px',borderRadius:99,background:'var(--green-lt)',border:'1px solid rgba(5,182,122,.25)',fontSize:10,fontWeight:700,color:'var(--green)'}}>✓ Hoàn thành</span>
+            </div>
+            <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{sem.courses.length} môn · {cr} tín chỉ</div>
+          </div>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
+          {gpa!=null&&(
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:9,color:'var(--muted)',letterSpacing:'.08em',fontWeight:600}}>GPA</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:22,fontWeight:700,color:col,lineHeight:1.1}}>{gpa.toFixed(2)}</div>
+            </div>
+          )}
+          <div style={{color:'var(--muted2)',fontSize:11,transform:open?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</div>
+        </div>
+      </div>
+      {open&&(
+        <div style={{padding:'10px 16px 14px'}}>
+          {sem.courses.map(c=>{
+            const zero=c.credits===0,{c:gc,bg,bd}=gradeColor(c.grade);
+            return (
+              <div key={c.id} className="course-row">
+                <div className="credit-pill" style={{background:zero?'var(--bg2)':'var(--accent-lt)',color:zero?'var(--muted2)':'var(--accent)'}}>{c.credits}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,color:'var(--text2)',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.code}</div>
+                  {c.name&&c.name!==c.code&&<div style={{fontSize:10,color:'var(--muted)',marginTop:1}}>{c.name}</div>}
+                </div>
+                {zero&&<span style={{fontSize:10,color:'var(--muted2)',background:'var(--bg2)',padding:'2px 7px',borderRadius:5}}>—</span>}
+                {!zero&&(
+                  editGid===c.id
+                    ? <select className="grade-sel" autoFocus value={c.grade||''} onChange={e=>{onUpdateCourse(sem.id,{...c,grade:e.target.value||null});setEditGid(null);}} onBlur={()=>setEditGid(null)}>
+                        <option value="">—</option>{GRADE_OPTS.map(g=><option key={g}>{g}</option>)}
+                      </select>
+                    : <GBadge grade={c.grade} small onClick={()=>setEditGid(c.id)}/>
+                )}
+                <button className="btn btn-ghost btn-icon btn-sm" style={{color:'var(--muted)',fontSize:12}} onClick={()=>setEditC(c)}>✏️</button>
+              </div>
+            );
+          })}
+          <button className="btn btn-ghost btn-sm" style={{marginTop:8,color:'var(--accent)',fontSize:12,fontWeight:600}} onClick={()=>setAddC(true)}>+ Thêm môn học</button>
+        </div>
+      )}
+      {editC&&<EditCourseModal course={editC} semId={sem.id} onSave={c=>{onUpdateCourse(sem.id,c);setEditC(null);}} onDelete={(id,sid)=>{onDeleteCourse(sid,id);setEditC(null);}} onClose={()=>setEditC(null)}/>}
+      {addC&&<AddCourseModal semId={sem.id} onSave={c=>onAddCourse(sem.id,c)} onClose={()=>setAddC(false)}/>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   PLANNED CARD
+══════════════════════════════════════════════ */
+const PlannedCard = ({sem,onDragStart,onDrop,onGradeChange,draggingId,onEditCourse,onAddCourse,onDeleteCourse,onDeleteSem}) => {
+  const [over,setOver]=useState(false);
+  const [editC,setEditC]=useState(null);
+  const [addC,setAddC]=useState(false);
+  const tc=plannedCr(sem.courses),proj=calcGPA(sem.courses),isThesis=sem.courses.some(c=>c.credits>=8);
+  const [editGid,setEditGid]=useState(null);
+  return (
+    <div
+      onDragOver={e=>{e.preventDefault();setOver(true);}}
+      onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget))setOver(false);}}
+      onDrop={e=>{e.preventDefault();onDrop(sem.id);setOver(false);}}
+      className={`card${over?' drop-active':''}`}
+      style={{padding:16,display:'flex',flexDirection:'column',gap:12}}
+    >
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span className="sem-pill" style={isThesis?{background:'var(--yellow-lt)',border:'1px solid rgba(232,144,12,.28)',color:'var(--yellow)',padding:'3px 10px',borderRadius:6,fontFamily:'var(--mono)',fontSize:12}:{background:'var(--accent2-lt)',border:'1px solid rgba(0,180,200,.25)',color:'var(--accent2)',padding:'3px 10px',borderRadius:6,fontFamily:'var(--mono)',fontSize:12}}>{sem.id}</span>
+          <span style={{fontSize:10,color:'var(--muted)',padding:'2px 7px',borderRadius:99,background:'var(--bg2)',border:'1px solid var(--border)'}}>Dự kiến</span>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:13,color:'var(--text2)',fontWeight:600}}>{tc}<span style={{fontSize:10,marginLeft:2,color:'var(--muted)'}}>TC</span></div>
+            {proj!=null&&<div style={{fontFamily:'var(--mono)',fontSize:11,color:gpaCol(proj),marginTop:1}}>~{proj.toFixed(2)}</div>}
+          </div>
+          <button className="btn btn-ghost btn-icon btn-sm" style={{color:'var(--red)',opacity:.65,fontSize:11}} onClick={()=>onDeleteSem(sem.id)}>✕</button>
+        </div>
+      </div>
+      <div>
+        {sem.courses.map(c=>{
+          const isDrag=draggingId===c.id,{cg,bg,bd}=gradeColor(c.grade)||{};
+          const gc=gradeColor(c.grade);
+          return (
+            <div key={c.id} className={`plan-chip${isDrag?' chip-dragging':''}`}
+              draggable onDragStart={e=>{e.dataTransfer.effectAllowed='move';onDragStart(c.id,sem.id);}}>
+              <span className="drag-handle">⠿</span>
+              <span style={{width:20,height:20,borderRadius:5,background:'var(--accent-lt)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,color:'var(--accent)',fontFamily:'var(--mono)',fontWeight:700,flexShrink:0}}>{c.credits}</span>
+              <span style={{fontSize:12,color:'var(--text2)',flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.code}</span>
+              {editGid===c.id
+                ? <select className="grade-sel" autoFocus value={c.grade||''} onChange={e=>{onGradeChange(c.id,sem.id,e.target.value||null);setEditGid(null);}} onBlur={()=>setEditGid(null)} onClick={e=>e.stopPropagation()}>
+                    <option value="">—</option>{GRADE_OPTS.map(g=><option key={g}>{g}</option>)}
+                  </select>
+                : <span onClick={e=>{e.stopPropagation();setEditGid(c.id);}} style={{color:gc.c,background:gc.bg,border:`1px solid ${gc.bd}`,padding:'1px 5px',borderRadius:5,fontSize:11,fontFamily:'var(--mono)',fontWeight:600,cursor:'pointer',flexShrink:0,lineHeight:1.6}}>{c.grade||'—'}</span>}
+              <button className="btn btn-ghost btn-icon" style={{width:22,height:22,fontSize:11,borderRadius:6,color:'var(--muted)'}} onClick={e=>{e.stopPropagation();setEditC(c);}}>✏️</button>
+            </div>
+          );
+        })}
+        {sem.courses.length===0&&<div className="empty">Kéo thả môn học vào đây</div>}
+      </div>
+      <button className="btn btn-ghost btn-sm" style={{color:'var(--accent)',fontSize:11,fontWeight:600,alignSelf:'flex-start'}} onClick={()=>setAddC(true)}>+ Thêm môn</button>
+      {editC&&<EditCourseModal course={editC} semId={sem.id} onSave={c=>{onEditCourse(sem.id,c);setEditC(null);}} onDelete={(id,sid)=>{onDeleteCourse(sid,id);setEditC(null);}} onClose={()=>setEditC(null)}/>}
+      {addC&&<AddCourseModal semId={sem.id} onSave={c=>onAddCourse(sem.id,c)} onClose={()=>setAddC(false)}/>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   DASHBOARD TAB
+══════════════════════════════════════════════ */
+const DashboardTab = ({sems,profile}) => {
+  const done=sems.filter(s=>s.status==='completed');
+  const plan=sems.filter(s=>s.status==='planned');
+  const allDone=done.flatMap(s=>s.courses);
+  const cpa=useMemo(()=>calcGPA(allDone),[allDone]);
+  const totalCr=useMemo(()=>earnedCr(allDone),[allDone]);
+  const remCr=useMemo(()=>plan.flatMap(s=>s.courses).filter(c=>c.credits>0).reduce((a,c)=>a+c.credits,0),[plan]);
+  const totalAll=profile.totalCreditsRequired||145;
+  const pct=totalAll?Math.min(100,Math.round((totalCr/totalAll)*100)):0;
+  const bestSem=useMemo(()=>{let b=null;done.forEach(s=>{const g=calcGPA(s.courses);if(g!=null&&(!b||g>b.gpa))b={id:s.id,gpa:g}});return b;},[done]);
+  const timeline=useMemo(()=>buildTimeline(sems),[sems]);
+  const rc=rankColors(cpa);
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:20}}>
+      {/* Hero card */}
+      <div className="card anim" style={{background:'linear-gradient(135deg,var(--surface) 60%,var(--accent-lt))',boxShadow:'var(--shadow)'}}>
+        <div style={{padding:'24px 28px',display:'flex',flexWrap:'wrap',gap:24,alignItems:'center'}}>
+          <CPARing cpa={cpa} size={130}/>
+          <div style={{flex:1,minWidth:180}}>
+            <div style={{fontSize:10,fontWeight:700,color:'var(--muted)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:6}}>Điểm Trung Bình Tích Lũy</div>
+            <div style={{fontSize:52,fontWeight:800,letterSpacing:'-.03em',lineHeight:1,color:'var(--text)'}}>
+              {cpa!=null?cpa.toFixed(2):'—'}
+              <span style={{fontSize:17,fontWeight:400,color:'var(--muted)',marginLeft:10}}>/4.00</span>
+            </div>
+            <div style={{marginTop:10}}>
+              <span className="rank-pill" style={{background:rc.bg,border:`1px solid ${rc.bd}`,color:rc.c,fontSize:12}}>{rankLabel(cpa)}</span>
+            </div>
+            <div style={{marginTop:18,display:'flex',flexWrap:'wrap',gap:22}}>
+              {[{l:'Tín chỉ tích lũy',v:totalCr,c:'var(--text)'},{l:'Kỳ hoàn thành',v:done.length,c:'var(--text)'},{l:'TC kế hoạch',v:remCr,c:'var(--accent2)'}].map(s=>(
+                <div key={s.l}><div style={{fontSize:10,color:'var(--muted)',fontWeight:600}}>{s.l}</div><div style={{fontFamily:'var(--mono)',fontSize:22,fontWeight:700,color:s.c,lineHeight:1.3}}>{s.v}</div></div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Progress */}
+        <div style={{padding:'0 28px 22px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            <span style={{fontSize:12,color:'var(--muted)',fontWeight:500}}>Hoàn thành chương trình</span>
+            <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--accent)',fontWeight:700}}>{totalCr} / {totalAll} TC · {pct}%</span>
+          </div>
+          <div className="prog-track">
+            <div className="prog-fill" style={{width:`${pct}%`,background:'linear-gradient(90deg,var(--accent),var(--accent2))'}}/>
+          </div>
+        </div>
+      </div>
+
+      {/* Metric cards */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:12}}>
+        {[
+          {l:'Kỳ xuất sắc nhất',v:bestSem?.id||'—',sub:bestSem?`GPA ${bestSem.gpa.toFixed(2)}`:'',c:'#05b67a',bg:'linear-gradient(135deg,#dcf7ee,#b3f0d8)'},
+          {l:'Tổng TC toàn khóa',v:totalAll,c:'var(--accent)',bg:'linear-gradient(135deg,var(--accent-lt),#d8d0ff)'},
+          {l:'Số kỳ còn lại',v:`${plan.length}`,sub:'kỳ dự kiến',c:'var(--accent2)',bg:'linear-gradient(135deg,var(--accent2-lt),#b3f0fa)'},
+          {l:'TB TC/kỳ còn lại',v:plan.length?Math.round(remCr/plan.length):'—',c:'var(--yellow)',bg:'linear-gradient(135deg,var(--yellow-lt),#fde8b0)'},
+        ].map(st=>(
+          <div key={st.l} className="metric-card" style={{background:st.bg}}>
+            <div className="metric-label" style={{color:'rgba(0,0,0,.45)'}}>{st.l}</div>
+            <div className="metric-value" style={{color:'var(--text)',fontSize:24}}>{st.v}</div>
+            {st.sub&&<div className="metric-sub" style={{color:'rgba(0,0,0,.4)'}}>{st.sub}</div>}
+          </div>
+        ))}
+      </div>
+
+      {/* GPA bars */}
+      <div className="card" style={{padding:'20px 24px',boxShadow:'var(--shadow-sm)'}}>
+        <div className="section-label">GPA từng học kỳ đã hoàn thành</div>
+        <GPABars sems={done}/>
+      </div>
+
+      {/* CPA timeline */}
+      <div className="card" style={{padding:'20px 24px',boxShadow:'var(--shadow-sm)'}}>
+        <div className="section-label">Tiến trình CPA tích lũy</div>
+        <div className="timeline">
+          {timeline.map((t,i)=>{
+            const col=gpaCol(t.cumCPA),p2=t.cumCPA!=null?(t.cumCPA/4)*100:0;
+            return (
+              <div key={t.id} className="tl-cell">
+                <div style={{fontSize:9,color:'var(--muted2)',marginBottom:8,fontWeight:600}}>{t.id}</div>
+                <div style={{height:5,background:'var(--bg2)',borderRadius:99,marginBottom:6,overflow:'hidden',minWidth:60}}>
+                  <div style={{height:'100%',width:`${p2}%`,background:col,borderRadius:99,transition:'width 1.2s cubic-bezier(.4,0,.2,1)'}}/>
+                </div>
+                <div style={{fontFamily:'var(--mono)',fontSize:15,fontWeight:700,color:col}}>{t.cumCPA?.toFixed(2)||'—'}</div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>KY {t.semGPA?.toFixed(2)||'—'}</div>
+                <div style={{fontSize:9,color:'var(--muted2)',marginTop:1}}>{t.cumCr} TC</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Future plan */}
+      <div className="card" style={{padding:'20px 24px',boxShadow:'var(--shadow-sm)'}}>
+        <div className="section-label">Tổng quan kế hoạch tương lai</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(100px,1fr))',gap:8}}>
+          {plan.map(s=>{
+            const tc2=plannedCr(s.courses),hg=s.courses.some(c=>c.grade&&GP[c.grade]!=null),pg=hg?calcGPA(s.courses):null;
+            return (
+              <div key={s.id} style={{background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:11,padding:'10px 14px'}}>
+                <div style={{fontFamily:'var(--mono)',fontSize:11,fontWeight:700,color:'var(--accent2)',marginBottom:5}}>{s.id}</div>
+                <div style={{fontFamily:'var(--mono)',fontSize:20,fontWeight:700,color:'var(--text)'}}>{tc2}</div>
+                <div style={{fontSize:10,color:'var(--muted)'}}>tín chỉ</div>
+                {pg!=null&&<div style={{fontSize:10,color:gpaCol(pg),marginTop:3,fontFamily:'var(--mono)',fontWeight:600}}>~{pg.toFixed(2)}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   HISTORY TAB
+══════════════════════════════════════════════ */
+const HistoryTab = ({sems,setSems}) => {
+  const [toast,setToast]=useState(null);
+  const [q,setQ]=useState('');
+  const done=sems.filter(s=>s.status==='completed');
+  const allDone=done.flatMap(s=>s.courses);
+  const cpa=calcGPA(allDone),totalCr=earnedCr(allDone);
+  const filtered=q?done.map(s=>({...s,courses:s.courses.filter(c=>c.code.toLowerCase().includes(q.toLowerCase())||c.name?.toLowerCase().includes(q.toLowerCase()))})).filter(s=>s.courses.length>0):done;
+  const update=(semId,c)=>{setSems(p=>p.map(s=>s.id!==semId?s:{...s,courses:s.courses.map(x=>x.id!==c.id?x:c)}));setToast('✅ Đã cập nhật môn học');};
+  const del=(semId,cid)=>{setSems(p=>p.map(s=>s.id!==semId?s:{...s,courses:s.courses.filter(c=>c.id!==cid)}));setToast('🗑️ Đã xóa môn học');};
+  const add=(semId,c)=>{setSems(p=>p.map(s=>s.id!==semId?s:{...s,courses:[...s.courses,c]}));setToast('➕ Đã thêm môn học');};
+  const rc=rankColors(cpa);
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:14}}>
+      <div className="anim" style={{display:'flex',flexWrap:'wrap',gap:14,alignItems:'center',justifyContent:'space-between',background:'linear-gradient(90deg,var(--accent-lt),var(--accent2-lt))',border:'1px solid rgba(91,74,247,.15)',borderRadius:16,padding:'16px 22px',boxShadow:'var(--shadow-sm)'}}>
+        <div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
+          {[{l:'CPA hiện tại',v:cpa?.toFixed(2)||'—',c:gpaCol(cpa)},{l:'Tổng tín chỉ',v:totalCr,c:'var(--text)'},{l:'Xếp loại',v:rankLabel(cpa),c:rc.c}].map(s=>(
+            <div key={s.l}><div style={{fontSize:10,fontWeight:700,color:'rgba(0,0,0,.4)',textTransform:'uppercase',letterSpacing:'.07em'}}>{s.l}</div><div style={{fontFamily:'var(--mono)',fontSize:20,fontWeight:700,color:s.c,marginTop:2}}>{s.v}</div></div>
+          ))}
+        </div>
+        <div className="search-wrap">
+          <span className="search-icon">🔍</span>
+          <input className="search-input" placeholder="Tìm mã hoặc tên môn…" value={q} onChange={e=>setQ(e.target.value)}/>
+        </div>
+      </div>
+      {filtered.map((s,i)=><CompletedCard key={s.id} sem={s} delay={i*.04} onUpdateCourse={update} onDeleteCourse={del} onAddCourse={add}/>)}
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   PLANNER TAB
+══════════════════════════════════════════════ */
+const PlannerTab = ({sems,setSems}) => {
+  const [drag,setDrag]=useState(null);
+  const [addSem,setAddSem]=useState(false);
+  const [toast,setToast]=useState(null);
+  const plan=sems.filter(s=>s.status==='planned');
+  const rem=plan.flatMap(s=>s.courses).filter(c=>c.credits>0).reduce((a,c)=>a+c.credits,0);
+  const onDragStart=useCallback((cid,fsid)=>setDrag({cid,fsid}),[]);
+  const onDrop=useCallback(tsid=>{
+    if(!drag||drag.fsid===tsid){setDrag(null);return;}
+    setSems(prev=>{
+      const course=prev.find(s=>s.id===drag.fsid)?.courses.find(c=>c.id===drag.cid);
+      if(!course) return prev;
+      return prev.map(s=>{
+        if(s.id===drag.fsid) return {...s,courses:s.courses.filter(c=>c.id!==drag.cid)};
+        if(s.id===tsid) return {...s,courses:[...s.courses,course]};
+        return s;
+      });
+    });
+    setDrag(null);setToast('↔️ Đã di chuyển môn học');
+  },[drag,setSems]);
+  useEffect(()=>{const u=()=>setDrag(null);window.addEventListener('dragend',u);return()=>window.removeEventListener('dragend',u);},[]);
+  const onGradeChange=useCallback((cid,sid,grade)=>setSems(prev=>prev.map(s=>s.id!==sid?s:{...s,courses:s.courses.map(c=>c.id!==cid?c:{...c,grade})})),[setSems]);
+  const editC=(sid,c)=>{setSems(p=>p.map(s=>s.id!==sid?s:{...s,courses:s.courses.map(x=>x.id!==c.id?x:c)}));setToast('✅ Đã cập nhật');};
+  const addC=(sid,c)=>{setSems(p=>p.map(s=>s.id!==sid?s:{...s,courses:[...s.courses,c]}));setToast('➕ Đã thêm môn');};
+  const delC=(sid,cid)=>{setSems(p=>p.map(s=>s.id!==sid?s:{...s,courses:s.courses.filter(c=>c.id!==cid)}));setToast('🗑️ Đã xóa môn');};
+  const delS=sid=>{if(!window.confirm(`Xóa học kỳ ${sid}?`))return;setSems(p=>p.filter(s=>s.id!==sid));setToast('🗑️ Đã xóa học kỳ');};
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:16}}>
+      <div className="anim" style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',background:'linear-gradient(90deg,var(--accent2-lt),rgba(255,255,255,0))',border:'1px solid rgba(0,180,200,.2)',borderRadius:13,padding:'12px 18px',fontSize:12,color:'var(--text2)'}}>
+        <span style={{fontSize:18}}>💡</span>
+        <span style={{flex:1}}><strong>Kéo thả</strong> môn học giữa các kỳ để sắp xếp lại · Click badge điểm <strong>—</strong> để nhập điểm dự kiến · ✏️ chỉnh sửa thông tin môn · Còn <strong style={{color:'var(--accent)'}}>{rem} TC</strong> trong kế hoạch</span>
+        <button className="btn btn-primary btn-sm" onClick={()=>setAddSem(true)}>+ Thêm học kỳ</button>
+      </div>
+      <div className="sem-grid">
+        {plan.map(sem=>(
+          <PlannedCard key={sem.id} sem={sem}
+            onDragStart={onDragStart} onDrop={onDrop} onGradeChange={onGradeChange} draggingId={drag?.cid}
+            onEditCourse={editC} onAddCourse={addC} onDeleteCourse={delC} onDeleteSem={delS}/>
+        ))}
+      </div>
+      {addSem&&<AddSemModal existingIds={sems.map(s=>s.id)} onSave={s=>{setSems(p=>[...p,s]);setToast('🗓️ Đã thêm học kỳ');}} onClose={()=>setAddSem(false)}/>}
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   PROFILE TAB
+══════════════════════════════════════════════ */
+const ProfileTab = ({profile,setProfile,sems}) => {
+  const [editing,setEditing]=useState(false);
+  const [toast,setToast]=useState(null);
+  const done=sems.filter(s=>s.status==='completed');
+  const allDone=done.flatMap(s=>s.courses);
+  const cpa=calcGPA(allDone),totalCr=earnedCr(allDone);
+  const rc=rankColors(cpa);
+  const bestSem=useMemo(()=>{let b=null;done.forEach(s=>{const g=calcGPA(s.courses);if(g!=null&&(!b||g>b.gpa))b={id:s.id,gpa:g}});return b;},[done]);
+  const initials=getInitials(profile.name);
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:18}}>
+      {/* Profile hero */}
+      <div className="card anim" style={{background:'linear-gradient(135deg,var(--accent-lt) 0%,var(--accent2-lt) 100%)',boxShadow:'var(--shadow)'}}>
+        <div style={{padding:'28px 32px',display:'flex',flexWrap:'wrap',gap:24,alignItems:'center'}}>
+          {/* Avatar */}
+          <div style={{width:88,height:88,borderRadius:20,flexShrink:0,background:'linear-gradient(135deg,var(--accent),var(--accent2))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:32,fontWeight:800,color:'#fff',border:'3px solid rgba(255,255,255,.8)',boxShadow:'0 8px 24px rgba(91,74,247,.3)',overflow:'hidden'}}>
+            {profile.avatar?<img src={profile.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:initials}
+          </div>
+          <div style={{flex:1,minWidth:160}}>
+            <div style={{fontSize:26,fontWeight:800,color:'var(--text)',letterSpacing:'-.02em',lineHeight:1.1}}>{profile.name||'Chưa đặt tên'}</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginTop:4}}>{profile.studentId} · {profile.major}</div>
+            <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{profile.school}</div>
+            <div style={{display:'flex',gap:10,marginTop:12,flexWrap:'wrap',alignItems:'center'}}>
+              <span style={{fontFamily:'var(--mono)',fontSize:15,fontWeight:700,color:gpaCol(cpa),background:'rgba(255,255,255,.7)',border:'1px solid rgba(91,74,247,.2)',padding:'4px 12px',borderRadius:99}}>CPA {cpa?.toFixed(2)||'—'}</span>
+              <span className="rank-pill" style={{background:rc.bg,border:`1px solid ${rc.bd}`,color:rc.c,fontSize:11}}>{rankLabel(cpa)}</span>
+            </div>
+          </div>
+          <button className="btn btn-primary" onClick={()=>setEditing(true)}>✏️ Chỉnh sửa hồ sơ</button>
+        </div>
+      </div>
+
+      {/* Academic stats */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:12}}>
+        {[
+          {icon:'🏆',label:'Xếp loại học lực',value:rankLabel(cpa),c:rc.c},
+          {icon:'📚',label:'Tín chỉ tích lũy',value:`${totalCr} TC`,c:'var(--accent)'},
+          {icon:'⭐',label:'Kỳ xuất sắc nhất',value:bestSem?.id||'—',c:'#05b67a'},
+          {icon:'📅',label:'Số kỳ đã hoàn thành',value:`${done.length} kỳ`,c:'var(--text)'},
+        ].map(s=>(
+          <div key={s.label} className="info-chip">
+            <div className="info-chip-icon">{s.icon}</div>
+            <div>
+              <div className="info-chip-label">{s.label}</div>
+              <div className="info-chip-value" style={{color:s.c}}>{s.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Personal info */}
+      <div className="card" style={{padding:'20px 24px',boxShadow:'var(--shadow-sm)'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+          <div className="section-label" style={{marginBottom:0}}>Thông tin cá nhân</div>
+          <button className="btn btn-secondary btn-sm" onClick={()=>setEditing(true)}>✏️ Sửa</button>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:10}}>
+          {[
+            {icon:'🏫',label:'Trường',value:profile.school},
+            {icon:'🏛️',label:'Khoa / Viện',value:profile.faculty},
+            {icon:'🎓',label:'Ngành học',value:profile.major},
+            {icon:'📆',label:'Khóa',value:profile.year},
+            {icon:'📧',label:'Email',value:profile.email},
+            {icon:'📱',label:'Điện thoại',value:profile.phone||'Chưa cập nhật'},
+            {icon:'🆔',label:'MSSV',value:profile.studentId},
+            {icon:'📋',label:'TC yêu cầu',value:`${profile.totalCreditsRequired} TC`},
+          ].map(row=>(
+            <div key={row.label} className="info-chip">
+              <div className="info-chip-icon">{row.icon}</div>
+              <div style={{minWidth:0}}>
+                <div className="info-chip-label">{row.label}</div>
+                <div className="info-chip-value" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row.value||'—'}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {editing&&<ProfileModal profile={profile} onSave={p=>{setProfile(p);setToast('✅ Đã cập nhật hồ sơ');}} onClose={()=>setEditing(false)}/>}
+      {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+};
+
+/* ══════════════════════════════════════════════
+   ROOT APP
+══════════════════════════════════════════════ */
+function App() {
+  const [sems,setSems]=useState(INIT_SEMS);
+  const [profile,setProfile]=useState(INIT_PROFILE);
+  const [tab,setTab]=useState('dashboard');
+  const [tabKey,setTabKey]=useState(0);
+  const changeTab=t=>{setTab(t);setTabKey(k=>k+1);};
+
+  const cpa=useMemo(()=>calcGPA(sems.filter(s=>s.status==='completed').flatMap(s=>s.courses)),[sems]);
+  const cr=useMemo(()=>earnedCr(sems.filter(s=>s.status==='completed').flatMap(s=>s.courses)),[sems]);
+  const plan=sems.filter(s=>s.status==='planned');
+  const initials=getInitials(profile.name);
+
+  const TABS=[
+    {id:'dashboard',icon:'⊞',label:'Tổng quan'},
+    {id:'history',  icon:'◎',label:'Kết quả học tập'},
+    {id:'planner',  icon:'◈',label:'Kế hoạch học tập'},
+    {id:'profile',  icon:'◉',label:'Hồ sơ cá nhân'},
+  ];
+
+  return (
+    <div className="layout">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-top">
+          <div className="logo">
+            <div className="logo-mark">✦</div>
+            <div className="logo-name">EduTrack</div>
+          </div>
+          {/* Profile mini card */}
+          <div className="profile-card" onClick={()=>changeTab('profile')}>
+            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+              <div className="profile-avatar" style={{width:42,height:42,borderRadius:11,fontSize:16}}>
+                {profile.avatar?<img src={profile.avatar} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:initials}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div className="profile-name" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{profile.name}</div>
+                <div className="profile-detail" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{profile.major}</div>
+              </div>
+            </div>
+            <div className="profile-gpa-row">
+              <span className="profile-gpa-badge">CPA {cpa?.toFixed(2)||'—'}</span>
+              <span style={{fontSize:10,color:'var(--text2)',fontWeight:500}}>{rankLabel(cpa)}</span>
+            </div>
+          </div>
+
+          <div className="nav-section-label">Menu</div>
+          {TABS.map(t=>(
+            <button key={t.id} className={`nav-item${tab===t.id?' active':''}`} onClick={()=>changeTab(t.id)}>
+              <span className="nav-icon">{t.icon}</span>
+              {t.label}
+              {t.id==='planner'&&plan.length>0&&<span className="nav-badge">{plan.length}</span>}
+            </button>
+          ))}
+        </div>
+
+        <div className="sidebar-stats">
+          <div className="section-label" style={{marginBottom:10}}>Thống kê nhanh</div>
+          {[
+            {label:'CPA',value:cpa?.toFixed(2)||'—',c:gpaCol(cpa)},
+            {label:'Tín chỉ tích lũy',value:`${cr} TC`,c:'var(--text2)'},
+            {label:'Kỳ hoàn thành',value:`${sems.filter(s=>s.status==='completed').length} kỳ`,c:'var(--text2)'},
+            {label:'Xếp loại',value:rankLabel(cpa),c:gpaCol(cpa)},
+          ].map(s=>(
+            <div key={s.label} className="sidebar-stat-row">
+              <span className="sidebar-stat-label">{s.label}</span>
+              <span className="sidebar-stat-value" style={{color:s.c}}>{s.value}</span>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="content">
+        <header className="topbar">
+          <div className="topbar-title">{TABS.find(t=>t.id===tab)?.label}</div>
+          <div className="topbar-right">
+            <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--muted)',background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:7,padding:'5px 12px'}}>
+              {profile.year}
+            </div>
+          </div>
+        </header>
+        <div style={{flex:1,overflow:'auto'}}>
+          <div className="main" key={tabKey}>
+            {tab==='dashboard'&&<DashboardTab sems={sems} profile={profile}/>}
+            {tab==='history'  &&<HistoryTab sems={sems} setSems={setSems}/>}
+            {tab==='planner'  &&<PlannerTab sems={sems} setSems={setSems}/>}
+            {tab==='profile'  &&<ProfileTab profile={profile} setProfile={setProfile} sems={sems}/>}
+          </div>
+        </div>
+        <footer style={{borderTop:'1px solid var(--border)',padding:'10px 32px',background:'var(--surface)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontSize:10,color:'var(--muted2)'}}>EduTrack · Hệ điểm 4.0</span>
+          <span style={{fontSize:10,color:'var(--muted2)'}}>A/A+=4.0 · B+=3.5 · B=3.0 · C+=2.5 · C=2.0 · D+=1.5 · D=1.0 · F=0 · Môn 0TC không tính GPA</span>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+try {
+  document.getElementById('root').innerHTML='';
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+} catch(e) {
+  document.getElementById('root').innerHTML=`<div style="padding:40px;color:#e83a3a;font-family:system-ui;font-size:14px">Lỗi: ${e.message}</div>`;
+  console.error(e);
+}
+</script>
+</body>
+</html>
